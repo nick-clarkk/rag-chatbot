@@ -2,6 +2,34 @@ import json
 from pathlib import Path
 from langchain_core.documents import Document
 
+def get_path_metadata(path):
+    path = Path(path)
+
+    chapter_folder = path.parents[1].name
+    content_type = path.parent.name
+    notebook_name = path.stem
+
+    # Example: chapter_08_expectation
+    chapter_parts = chapter_folder.split("_")
+
+    chapter = int(chapter_parts[1])
+    chapter_title = " ".join(chapter_parts[2:]).title()
+
+    # Example: 01_Definition
+    notebook_parts = notebook_name.split("_", 1)
+
+    subchapter_number = int(notebook_parts[0])
+    subchapter_title = notebook_parts[1].replace("_", " ").title()
+
+    subchapter = f"{chapter}.{subchapter_number}"
+
+    return {
+        "chapter": chapter,
+        "chapter_title": chapter_title,
+        "subchapter": subchapter,
+        "subchapter_title": subchapter_title,
+        "content_type": content_type,
+    }
 
 def parse_notebook(path):
     with open(path, "r", encoding="utf-8") as f:
@@ -54,6 +82,8 @@ def create_documents(path):
     cells = parse_notebook(path)
     documents = []
 
+    path_metadata = get_path_metadata(path)
+
     title = None
     current_section = None
     current_content = []
@@ -72,6 +102,7 @@ def create_documents(path):
                             "source": Path(path).name,
                             "section": current_section,
                             "title": title
+                            **path_metadata,
                         },
                     )
                 )
@@ -90,7 +121,8 @@ def create_documents(path):
                         metadata={
                             "source": Path(path).name,
                             "section": current_section,
-                            "title": title
+                            "title": title,
+                            **path_metadata,
                         },
                     )
                 )
@@ -115,7 +147,8 @@ def create_documents(path):
                 metadata={
                     "source": Path(path).name,
                     "section": current_section,
-                    "title": title
+                    "title": title,
+                    **path_metadata,
                 },
             )
         )

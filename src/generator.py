@@ -12,16 +12,20 @@ def generate_answer(
     # create a ChatOpenAI instance
     llm = ChatOpenAI(
         model="gpt-4.1-mini",
-        temperature=0.0,
+        temperature=0.0, #math answers are more rigid -> lower temperature for more deterministic answers
+        max_tokens=500,
     )
 
     # prepare the context for the LLM
-    context = "\n\n---\n\n".join([doc.page_content for doc in context_documents])
+    context = "\n\n---\n\n".join(doc.page_content for doc in context_documents)
 
     prompt = f"""
-You are an AI education assisant asnwering student questions using course materials.and
+You are an AI education assistant answering student questions using course materials.
 
-Use only the provided context to answer the question. If the context is not sufficient to answer the question, say that the provided course material does not contain enough
+Use only the provided context to answer the question.
+Answer clearly and concisely.
+Do not add information that is not supported by the provided context and course materials.
+If the context is not sufficient to answer the question, say that the provided course materials do not contain enough
 information to answer the question confidently.
 
 Question:

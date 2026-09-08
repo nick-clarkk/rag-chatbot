@@ -1,15 +1,15 @@
 from src.notebook_parser import create_documents
 from src.chunker import chunk_documents
+from pathlib import Path
 
-notebook_paths = [
-    "data/probability/01_Definition.ipynb",
-    "data/probability/01_Poisson_Distribution.ipynb",
-    "data/probability/01_Transitions.ipynb",
+TEST_FILES = [
+    Path("data/probability/chapter_08_expectation/theory/01_Definition.ipynb"),
+    Path("data/probability/chapter_08_expectation/theory/02_Applying_the_Definition.ipynb"),
 ]
 
 documents = []
 
-for path in notebook_paths:
+for path in TEST_FILES:
     # parse notebook into section-level documents
     docs = create_documents(path)
     documents.extend(docs)

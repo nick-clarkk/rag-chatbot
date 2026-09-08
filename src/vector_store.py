@@ -24,6 +24,14 @@ def create_vector_store(
         persist_directory=persist_directory,
     )
 
-    vector_store.add_documents(documents)
+    ids = [
+        f'{doc.metadata["source"]}:{doc.metadata["section"]}:{doc.metadata["chunk_index"]}'
+        for doc in documents
+    ]
+
+    vector_store.add_documents(
+        documents = documents,
+        ids = ids,
+    )
 
     return vector_store

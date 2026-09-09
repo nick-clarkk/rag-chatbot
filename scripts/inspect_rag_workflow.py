@@ -1,5 +1,5 @@
 from src.vector_store import load_vector_store
-from src.rag_graph import build_rag_graph
+from rag_workflow import build_rag_graph
 
 
 DEBUG_RETRIEVAL = False

@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from src.vector_store import load_vector_store
-from src.rag_graph import build_rag_graph
+from rag_workflow import build_rag_graph
 
 
 QUESTIONS_FILE = Path("evaluation/questions.json")

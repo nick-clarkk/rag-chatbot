@@ -35,28 +35,28 @@ def classify_retrieval_intent_node(state: RAGState) -> dict:
     )
 
     prompt = f"""
-        Classify what kind of course material would best answer the student's request.
+Classify what kind of course material would best answer the student's request.
 
-        Return only one of:
+Return only one of:
 
-        THEORY
-        EXERCISE
-        BOTH
+THEORY
+EXERCISE
+BOTH
 
-        THEORY:
-        The student wants an explanation, definition, formula, proof, concept,
-        or other instructional material.
+THEORY:
+The student wants an explanation, definition, formula, proof, concept,
+or other instructional material.
 
-        EXERCISE:
-        The student wants a practice problem, exercise, quiz question,
-        or something to solve.
+EXERCISE:
+The student wants a practice problem, exercise, quiz question,
+or something to solve.
 
-        BOTH:
-        The student explicitly wants both explanation/theory and practice material.
+BOTH:
+The student explicitly wants both explanation/theory and practice material.
 
-        Question:
-        {question}
-        """
+Question:
+{question}
+"""
 
     response = llm.invoke(prompt)
 
@@ -100,24 +100,24 @@ def identify_target_chapter_node(state: RAGState, vector_store) -> dict:
     )
 
     prompt = f"""
-        A student is taking this probability course sequentially.
+A student is taking this probability course sequentially.
 
-        Choose the chapter that best matches the specific topic the student is asking about.
+Choose the chapter that best matches the specific topic the student is asking about.
 
-        Use the candidate course locations below.
+Use the candidate course locations below.
 
-        Do not automatically choose the earliest chapter.
-        If the question refers to a more advanced or specialized treatment of a concept,
-        choose the chapter that specifically covers that treatment.
+Do not automatically choose the earliest chapter.
+If the question refers to a more advanced or specialized treatment of a concept,
+choose the chapter that specifically covers that treatment.
 
-        Student request:
-        {state["question"]}
+Student request:
+{state["question"]}
 
-        Candidate course locations:
-        {candidates}
+Candidate course locations:
+{candidates}
 
-        Return only the chapter number.
-        """
+Return only the chapter number.
+"""
 
     response = llm.invoke(prompt)
 
@@ -188,51 +188,51 @@ def check_sufficiency_node(state: RAGState) -> dict:
     )
 
     prompt = f"""
-        You are checking whether retrieved course material is sufficient to answer a student's question.
+You are checking whether retrieved course material is sufficient to answer a student's question.
 
-        Return only:
-        SUFFICIENT
-        or
-        INSUFFICIENT
+Return only:
+SUFFICIENT
+or
+INSUFFICIENT
 
-        Rules:
+Rules:
 
-        - Return SUFFICIENT only if the retrieved context contains enough information
-        to answer the specific question.
-        - The context does not need to use the exact wording of the question.
-        A direct statement, clear paraphrase, or relevant example can be sufficient.
-        - A merely related topic is not sufficient.
-        - If the user asks for a use case, purpose, application, or when something is used,
-        a clear statement describing what it is used to model or accomplish is sufficient.
-        - If the user asks for a practice problem, exercise, quiz question, or something to solve,
-        return SUFFICIENT if the retrieved context contains an appropriate problem
-        that matches the requested topic.
-        A solution is not required unless the user explicitly asks for the solution.
-        - If the user asks for both an explanation and a practice problem,
-        return SUFFICIENT if the retrieved context contains enough theory to explain
-        the requested topic and also contains an appropriate problem on that topic.
-        - If the user asks for an explanation, comparison, derivation, proof, or example,
-        the context must contain enough information to perform that specific task.
-        - A result being stated as true is not sufficient if the user asks for a proof
-        and the proof is not actually contained in the context.
-        - If the context explicitly says a proof or derivation is omitted or not provided,
-        return INSUFFICIENT.
-        - Do not use outside knowledge.
+- Return SUFFICIENT only if the retrieved context contains enough information
+to answer the specific question.
+- The context does not need to use the exact wording of the question.
+A direct statement, clear paraphrase, or relevant example can be sufficient.
+- A merely related topic is not sufficient.
+- If the user asks for a use case, purpose, application, or when something is used,
+a clear statement describing what it is used to model or accomplish is sufficient.
+- If the user asks for a practice problem, exercise, quiz question, or something to solve,
+return SUFFICIENT if the retrieved context contains an appropriate problem
+that matches the requested topic.
+A solution is not required unless the user explicitly asks for the solution.
+- If the user asks for both an explanation and a practice problem,
+return SUFFICIENT if the retrieved context contains enough theory to explain
+the requested topic and also contains an appropriate problem on that topic.
+- If the user asks for an explanation, comparison, derivation, proof, or example,
+the context must contain enough information to perform that specific task.
+- A result being stated as true is not sufficient if the user asks for a proof
+and the proof is not actually contained in the context.
+- If the context explicitly says a proof or derivation is omitted or not provided,
+return INSUFFICIENT.
+- Do not use outside knowledge.
 
-        Question:
-        {question}
+Question:
+{question}
 
-        Retrieved Context:
-        {context}
+Retrieved Context:
+{context}
 
-        Respond with only one word:
+Respond with only one word:
 
-        SUFFICIENT
+SUFFICIENT
 
-        or 
+or 
 
-        INSUFFICIENT
-        """
+INSUFFICIENT
+"""
 
     response = llm.invoke(prompt)
     sufficient = response.content.strip().upper() == "SUFFICIENT"

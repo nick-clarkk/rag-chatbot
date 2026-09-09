@@ -13,7 +13,7 @@ def generate_answer(
     llm = ChatOpenAI(
         model="gpt-4.1-mini",
         temperature=0.0, #math answers are more rigid -> lower temperature for more deterministic answers
-        max_tokens=500,
+        max_tokens=650,
     )
 
     # prepare the context for the LLM
@@ -34,31 +34,35 @@ def generate_answer(
     context = "\n\n---\n\n".join(context_parts)
 
     prompt = f"""
-You are an AI education assistant answering student questions using course materials.
+You are an educational assistant answering questions using only the provided course material.
 
-Use only the provided context to answer the question.
+Rules:
 
-Answer clearly and concisely.
+- Use only the provided context.
+- If the context does not contain enough information to answer the question confidently, say so.
+- Cite the relevant chapter and section using the source labels provided in the context.
+- Never include "Source 1", "Source 2", or any other source number in the final citation.
+- When citing, use a format such as:
+  [Chapter 8.1 - Definition, Definition]
+  [Chapter 8.6 - Exercises, Exercise 8]
 
-Do not add information that is not supported by the provided context and course materials.
-
-When you use information from the context, cite the chapter and section information
-shown in the source label.
-
-Do not cite sources using only labels such as [Source 1].
-Instead, cite them in this format:
-
-[Chapter 7.1 - Poisson Distribution, Poisson Probabilities]
-
-If multiple sources support the same statement, include each citation separately.
-
-If the context is not sufficient to answer the question, say that the provided course materials do not contain enough information to answer the question confidently.
+- If the student asks for a practice problem, exercise, quiz question,
+  or something to solve, provide an appropriate problem from the retrieved
+  exercise material.
+- Do NOT provide the solution unless the student explicitly asks for the
+  solution, answer, walkthrough, or help solving it.
+- If the student asks for both an explanation and a practice problem,
+  explain the concept first and then provide the practice problem without
+  revealing its solution.
+- Do not offer additional help, follow-up questions, or extra exercises unless the student explicitly asks for them.
 
 Question:
 {question}
 
 Context:
 {context}
+
+Answer:
 """
 
     # generate the answer

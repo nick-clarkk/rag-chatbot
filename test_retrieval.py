@@ -3,11 +3,11 @@ from src.vector_store import load_vector_store
 
 vector_store = load_vector_store()
 
-query = "Why is expectation called the center of gravity?"
+query = "Find an exercise about expectation"
 
 output = vector_store.similarity_search(
     query,
-    k=3,
+    k=5,
 )
 
 print("\nQuery:")

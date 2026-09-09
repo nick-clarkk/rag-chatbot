@@ -13,21 +13,160 @@ class RAGState(TypedDict):
     """
     question: str
     retrieval_query: NotRequired[str] # prompt it ends up using for generation
+    retrieval_intent: NotRequired[str] # theory, exercise, or both
     retrieved_docs: NotRequired[list[Document]]
+    target_chapter: NotRequired[int]
     sufficient: NotRequired[bool]
     answer: NotRequired[str]
     retry_count: NotRequired[int]
 
-def retrieve_node(state: RAGState, vector_store) -> dict:
+
+def classify_retrieval_intent_node(state: RAGState) -> dict:
     """
-    Read user question -> search vector store for 3 most similar chunks -> put retrieved chunks back into the graph state
+    Classify whether the user's request needs theory, exercises, or both
     """
+
+    question = state["question"]
+
+    llm = ChatOpenAI(
+        model="gpt-4.1-mini",
+        temperature=0.0,
+        max_tokens=10,
+    )
+
+    prompt = f"""
+        Classify what kind of course material would best answer the student's request.
+
+        Return only one of:
+
+        THEORY
+        EXERCISE
+        BOTH
+
+        THEORY:
+        The student wants an explanation, definition, formula, proof, concept,
+        or other instructional material.
+
+        EXERCISE:
+        The student wants a practice problem, exercise, quiz question,
+        or something to solve.
+
+        BOTH:
+        The student explicitly wants both explanation/theory and practice material.
+
+        Question:
+        {question}
+        """
+
+    response = llm.invoke(prompt)
+
+    retrieval_intent = response.content.strip().upper()
+
+    return {
+        "retrieval_intent": retrieval_intent
+    }
+
+
+def identify_target_chapter_node(state: RAGState, vector_store) -> dict:
+    """
+    Choose the course chapter that best matches the student's requested topic.
+    """
+
     query = state.get("retrieval_query", state["question"])
-    # retrieve relevant documents from the vector store
-    retrieved_docs = vector_store.similarity_search(
+
+    candidate_docs = vector_store.similarity_search(
         query,
         k=5,
+        filter={"content_type": "theory"},
     )
+
+    candidate_lines = []
+
+    for doc in candidate_docs:
+        candidate_lines.append(
+            f"Chapter {doc.metadata['chapter']}: "
+            f"{doc.metadata['chapter_title']} | "
+            f"{doc.metadata['subchapter']} "
+            f"{doc.metadata['subchapter_title']} | "
+            f"Section: {doc.metadata['section']}"
+        )
+
+    candidates = "\n".join(candidate_lines)
+
+    llm = ChatOpenAI(
+        model="gpt-4.1-mini",
+        temperature=0.0,
+        max_tokens=20,
+    )
+
+    prompt = f"""
+        A student is taking this probability course sequentially.
+
+        Choose the chapter that best matches the specific topic the student is asking about.
+
+        Use the candidate course locations below.
+
+        Do not automatically choose the earliest chapter.
+        If the question refers to a more advanced or specialized treatment of a concept,
+        choose the chapter that specifically covers that treatment.
+
+        Student request:
+        {state["question"]}
+
+        Candidate course locations:
+        {candidates}
+
+        Return only the chapter number.
+        """
+
+    response = llm.invoke(prompt)
+
+    return {
+        "target_chapter": int(response.content.strip())
+    }
+
+def retrieve_node(state: RAGState, vector_store) -> dict:
+    query = state.get("retrieval_query", state["question"])
+    retrieval_intent = state.get("retrieval_intent", "THEORY")
+
+    if retrieval_intent == "THEORY":
+        retrieved_docs = vector_store.similarity_search(
+            query,
+            k=5,
+            filter={"content_type": "theory"},
+        )
+
+    elif retrieval_intent == "EXERCISE":
+        retrieved_docs = vector_store.similarity_search(
+            query,
+            k=5,
+            filter={
+                "$and": [
+                    {"content_type": "exercises"},
+                    {"chapter": state["target_chapter"]},
+                ]
+            },
+        )
+
+    else:  # BOTH
+        theory_docs = vector_store.similarity_search(
+            query,
+            k=5,
+            filter={"content_type": "theory"},
+        )
+
+        exercise_docs = vector_store.similarity_search(
+            query,
+            k=5,
+            filter={
+                "$and": [
+                    {"content_type": "exercises"},
+                    {"chapter": state["target_chapter"]},
+                ]
+            },
+        )
+
+        retrieved_docs = theory_docs + exercise_docs
 
     return {
         "retrieved_docs": retrieved_docs,
@@ -49,44 +188,44 @@ def check_sufficiency_node(state: RAGState) -> dict:
     )
 
     prompt = f"""
-You are checking whether retrieved course material is sufficient to answer a student's question.
+        You are checking whether retrieved course material is sufficient to answer a student's question.
 
-Return only:
-SUFFICIENT
-or
-INSUFFICIENT
+        Return only:
+        SUFFICIENT
+        or
+        INSUFFICIENT
 
-Rules:
+        Rules:
 
-- Return SUFFICIENT only if the retrieved context contains enough information
-  to answer the specific question.
-- The context does not need to use the exact wording of the question.
-  A direct statement, clear paraphrase, or relevant example can be sufficient.
-- A merely related topic is not sufficient.
-- If the user asks for a use case, purpose, application, or when something is used,
-  a clear statement describing what it is used to model or accomplish is sufficient.
-- If the user asks for an explanation, comparison, derivation, proof, or example,
-  the context must contain enough information to perform that specific task.
-- A result being stated as true is not sufficient if the user asks for a proof
-  and the proof is not actually contained in the context.
-- If the context explicitly says a proof or derivation is omitted or not provided,
-  return INSUFFICIENT.
-- Do not use outside knowledge.
+        - Return SUFFICIENT only if the retrieved context contains enough information
+        to answer the specific question.
+        - The context does not need to use the exact wording of the question.
+        A direct statement, clear paraphrase, or relevant example can be sufficient.
+        - A merely related topic is not sufficient.
+        - If the user asks for a use case, purpose, application, or when something is used,
+        a clear statement describing what it is used to model or accomplish is sufficient.
+        - If the user asks for an explanation, comparison, derivation, proof, or example,
+        the context must contain enough information to perform that specific task.
+        - A result being stated as true is not sufficient if the user asks for a proof
+        and the proof is not actually contained in the context.
+        - If the context explicitly says a proof or derivation is omitted or not provided,
+        return INSUFFICIENT.
+        - Do not use outside knowledge.
 
-Question:
-{question}
+        Question:
+        {question}
 
-Retrieved Context:
-{context}
+        Retrieved Context:
+        {context}
 
-Respond with only one word:
+        Respond with only one word:
 
-SUFFICIENT
+        SUFFICIENT
 
-or 
+        or 
 
-INSUFFICIENT
-"""
+        INSUFFICIENT
+        """
 
     response = llm.invoke(prompt)
     sufficient = response.content.strip().upper() == "SUFFICIENT"
@@ -124,6 +263,11 @@ Return only the rewritten question.
         "retry_count": state.get("retry_count", 0) + 1
     }
 
+def retrieval_intent_router(state: RAGState) -> str:
+    if state["retrieval_intent"] == "THEORY":
+        return "retrieve"
+
+    return "identify_target_chapter"
 
 def router(state: RAGState) -> str:
     """
@@ -161,6 +305,17 @@ def insufficient_node(state: RAGState) -> dict:
 def build_rag_graph(vector_store):
     graph = StateGraph(RAGState)
 
+    # Add nodes
+    graph.add_node(
+        "classify_retrieval_intent",
+        classify_retrieval_intent_node
+    )
+
+    graph.add_node(
+        "identify_target_chapter",
+        lambda state: identify_target_chapter_node(state, vector_store)
+    )
+
     graph.add_node(
         "retrieve",
         lambda state: retrieve_node(state, vector_store)
@@ -184,10 +339,27 @@ def build_rag_graph(vector_store):
     graph.add_node(
         "rewrite",
         rewrite_query_node
-)
+    )
 
+    # Start with intent classification
     graph.add_edge(
         START,
+        "classify_retrieval_intent"
+    )
+
+    # Theory can retrieve immediately.
+    # Exercise/Both first need a target chapter.
+    graph.add_conditional_edges(
+        "classify_retrieval_intent",
+        retrieval_intent_router,
+        {
+            "retrieve": "retrieve",
+            "identify_target_chapter": "identify_target_chapter",
+        }
+    )
+
+    graph.add_edge(
+        "identify_target_chapter",
         "retrieve"
     )
 
@@ -195,11 +367,6 @@ def build_rag_graph(vector_store):
         "retrieve",
         "check_sufficiency"
     )
-
-    graph.add_edge(
-        "rewrite",
-        "retrieve"
-)
 
     graph.add_conditional_edges(
         "check_sufficiency",
@@ -209,6 +376,11 @@ def build_rag_graph(vector_store):
             "rewrite": "rewrite",
             "insufficient": "insufficient",
         }
+    )
+
+    graph.add_edge(
+        "rewrite",
+        "retrieve"
     )
 
     graph.add_edge(

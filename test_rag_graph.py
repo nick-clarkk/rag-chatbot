@@ -2,23 +2,33 @@ from src.vector_store import load_vector_store
 from src.rag_graph import build_rag_graph
 
 
-DEBUG_RETRIEVAL = True
+DEBUG_RETRIEVAL = False
 
 vector_store = load_vector_store()
 rag_graph = build_rag_graph(vector_store)
 
 questions = [
-    "Can you prove by induction what the general Inclusion-Exclusion formula is?",
-    "What is a product space?",
-    "What is the difference between the multinomial distribution and the binomial distribution",
-    "What is E(X + Y) equal to?",
-    "What is the difference between a True Positive and a True Negative?"
+    "Explain expectation",
+    "Give me a practice problem about expectation",
+    "Explain expectation and then give me a practice problem",
 ]
 
 for question in questions:
     result = rag_graph.invoke({
         "question": question
     })
+
+    print("\nRetrieval Intent:")
+    print(result.get("retrieval_intent"))
+
+    print("\nTarget Chapter:")
+    print(result.get("target_chapter"))
+
+    print("\nRetrieved Content Types:")
+    print([
+        doc.metadata.get("content_type")
+        for doc in result["retrieved_docs"]
+    ])
 
     print("\nQuestion:")
     print(question)

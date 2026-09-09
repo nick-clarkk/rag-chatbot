@@ -8,7 +8,7 @@ from src.vector_store import create_vector_store
 DATA_DIR = Path("data/probability")
 
 notebook_paths = sorted(
-    DATA_DIR.glob("chapter_*/theory/*.ipynb")
+    DATA_DIR.glob("chapter_*/*/*.ipynb")
 )
 
 assert notebook_paths, f"No notebooks found in {DATA_DIR}"

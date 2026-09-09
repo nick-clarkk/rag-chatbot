@@ -35,6 +35,7 @@ def create_vector_store(
         doc_id = (
             f'{doc.metadata["chapter"]}:'
             f'{doc.metadata["subchapter"]}:'
+            f'{doc.metadata["content_type"]}:'
             f'{doc.metadata["source"]}:'
             f'{doc.metadata["section"]}:'
             f'{doc.metadata["start_index"]}:'

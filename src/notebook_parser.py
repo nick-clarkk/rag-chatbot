@@ -101,7 +101,7 @@ def create_documents(path):
                         metadata={
                             "source": Path(path).name,
                             "section": current_section,
-                            "title": title
+                            "title": title,
                             **path_metadata,
                         },
                     )

@@ -1,25 +1,10 @@
-from pathlib import Path
-
-from src.notebook_parser import create_documents
-from src.chunker import chunk_documents
-from src.vector_store import create_vector_store
+from src.vector_store import load_vector_store
 from src.rag_graph import build_rag_graph
+
 
 DEBUG_RETRIEVAL = True
 
-DATA_DIR = Path("data/probability")
-
-notebook_paths = sorted(DATA_DIR.glob("chapter_*/theory/*.ipynb"))
-
-assert notebook_paths, f"No notebooks found in {DATA_DIR}"
-
-documents = []
-
-for path in notebook_paths:
-    documents.extend(create_documents(path))
-
-chunks = chunk_documents(documents)
-vector_store = create_vector_store(chunks)
+vector_store = load_vector_store()
 rag_graph = build_rag_graph(vector_store)
 
 questions = [

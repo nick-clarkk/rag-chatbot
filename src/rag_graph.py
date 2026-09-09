@@ -26,7 +26,7 @@ def retrieve_node(state: RAGState, vector_store) -> dict:
     # retrieve relevant documents from the vector store
     retrieved_docs = vector_store.similarity_search(
         query,
-        k=3,
+        k=5,
     )
 
     return {
@@ -49,7 +49,29 @@ def check_sufficiency_node(state: RAGState) -> dict:
     )
 
     prompt = f"""
-You are checking whether the retrieved course materials are sufficient to answer the student's question.
+You are checking whether retrieved course material is sufficient to answer a student's question.
+
+Return only:
+SUFFICIENT
+or
+INSUFFICIENT
+
+Rules:
+
+- Return SUFFICIENT only if the retrieved context contains enough information
+  to answer the specific question.
+- The context does not need to use the exact wording of the question.
+  A direct statement, clear paraphrase, or relevant example can be sufficient.
+- A merely related topic is not sufficient.
+- If the user asks for a use case, purpose, application, or when something is used,
+  a clear statement describing what it is used to model or accomplish is sufficient.
+- If the user asks for an explanation, comparison, derivation, proof, or example,
+  the context must contain enough information to perform that specific task.
+- A result being stated as true is not sufficient if the user asks for a proof
+  and the proof is not actually contained in the context.
+- If the context explicitly says a proof or derivation is omitted or not provided,
+  return INSUFFICIENT.
+- Do not use outside knowledge.
 
 Question:
 {question}

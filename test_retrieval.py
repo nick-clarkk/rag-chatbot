@@ -1,21 +1,17 @@
-from pathlib import Path
+from src.vector_store import load_vector_store
 
-from src.notebook_parser import create_documents
-from src.chunker import chunk_documents
-from src.vector_store import create_vector_store
 
-TEST_FILE = Path(
-    "data/probability/chapter_08_expectation/theory/01_Definition.ipynb"
+vector_store = load_vector_store()
+
+query = "Why is expectation called the center of gravity?"
+
+output = vector_store.similarity_search(
+    query,
+    k=3,
 )
 
-assert TEST_FILE.exists(), f"Test file not found: {TEST_FILE}"
-
-documents = create_documents(TEST_FILE)
-chunks = chunk_documents(documents)
-
-vector_store = create_vector_store(chunks)
-
-output = vector_store.similarity_search("Why is expectation called the center of gravity?", k=3)
+print("\nQuery:")
+print(query)
 
 for i, doc in enumerate(output):
     print(f"\n--- Result {i} ---")

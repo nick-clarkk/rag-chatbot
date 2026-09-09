@@ -253,9 +253,8 @@ def evaluate():
             print("\nAnswer:")
             print(result["answer"])
 
-    # --------------------------------------------------
+
     # Final summary
-    # --------------------------------------------------
 
     total_cases = len(test_cases)
 

@@ -88,7 +88,7 @@ project/
 │   └── Runs the ingestion pipeline from source documents through
 │       chunking and vector-store creation.
 │
-├── rag_graph.py
+├── rag_workflow.py
 │   └── Defines the LangGraph retrieval, sufficiency-checking,
 │       and answer-generation workflow.
 │

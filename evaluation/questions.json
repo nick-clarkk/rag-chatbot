@@ -2,89 +2,147 @@
   {
     "question": "What is a product space?",
     "answerable": true,
+    "expected_intent": "THEORY",
     "expected_chapter": 3,
     "expected_subchapters": ["3.1"]
   },
   {
     "question": "What is E(X + Y) equal to?",
     "answerable": true,
+    "expected_intent": "THEORY",
     "expected_chapter": 8,
     "expected_subchapters": ["8.4"]
   },
   {
     "question": "What is the computational formula for variance?",
     "answerable": true,
+    "expected_intent": "THEORY",
     "expected_chapter": 12,
     "expected_subchapters": ["12.1"]
   },
   {
     "question": "What is the form of the Gamma function?",
     "answerable": true,
+    "expected_intent": "THEORY",
     "expected_chapter": 18,
     "expected_subchapters": ["18.3"]
   },
   {
     "question": "What is the Markov property?",
     "answerable": true,
+    "expected_intent": "THEORY",
     "expected_chapter": 10,
     "expected_subchapters": ["10.1"]
   },
   {
     "question": "What is the role of e to the negative mu in the Poisson distribution",
     "answerable": true,
+    "expected_intent": "THEORY",
     "expected_chapter": 7,
     "expected_subchapters": ["7.1"]
   },
   {
     "question": "What is the use case of the Poisson distribution?",
     "answerable": true,
+    "expected_intent": "THEORY",
     "expected_chapter": 7,
     "expected_subchapters": ["7.1"]
   },
   {
     "question": "What is the difference between the multinomial and binomial distributions?",
     "answerable": true,
+    "expected_intent": "THEORY",
     "expected_chapter": 6,
     "expected_subchapters": ["6.3"]
   },
   {
     "question": "How do I change the confidence level of my distribution?",
     "answerable": true,
+    "expected_intent": "THEORY",
     "expected_chapter": 14,
     "expected_subchapters": ["14.6"]
   },
   {
     "question": "Can you prove by induction the general Inclusion-Exclusion formula?",
-    "answerable": false
+    "answerable": false,
+    "expected_intent": "THEORY"
   },
   {
     "question": "What is backpropagation in a neural network?",
-    "answerable": false
+    "answerable": false,
+    "expected_intent": "THEORY"
   },
   {
     "question": "Prove that the beta (r, s) density integrates to 1.",
-    "answerable": false
+    "answerable": false,
+    "expected_intent": "THEORY"
   },
   {
     "question": "What is a transformer model?",
-    "answerable": false
+    "answerable": false,
+    "expected_intent": "THEORY"
   },
   {
     "question": "Why does a 95% confidence interval use something close to 2?",
     "answerable": true,
+    "expected_intent": "THEORY",
     "expected_chapter": 14,
     "expected_subchapters": ["14.6"]
   },
   {
     "question": "Does the regression-line formula require X and Y to be jointly normal?",
     "answerable": true,
+    "expected_intent": "THEORY",
     "expected_chapter": 24,
     "expected_subchapters": ["24.1", "24.3", "24.4"]
   },
   {
     "question": "How can Metropolis work if we don't know the normalizing constant of the target distribution?",
     "answerable": true,
+    "expected_intent": "THEORY",
     "expected_chapter": 11,
     "expected_subchapters": ["11.3"]
+  },
+  {
+    "question": "Give me a practice problem about expectation",
+    "answerable": true,
+    "expected_intent": "EXERCISE",
+    "expected_target_chapter": 8,
+    "expected_chapter": 8
+  },
+  {
+    "question": "Explain expectation then give me a practice problem",
+    "answerable": true,
+    "expected_intent": "BOTH",
+    "expected_target_chapter": 8,
+    "expected_chapter": 8
+  },
+  {
+    "question": "Give me a practice problem about least squares prediction using conditional expectation",
+    "answerable": true,
+    "expected_intent": "EXERCISE",
+    "expected_target_chapter": 22,
+    "expected_chapter": 22
+  },
+  {
+    "question": "Explain detailed balance, then give me a practice problem using it",
+    "answerable": true,
+    "expected_intent": "BOTH",
+    "expected_target_chapter": 11,
+    "expected_chapter": 11
+  },
+  {
+    "question": "Give me an example problem for sampling without replacement",
+    "answerable": true,
+    "expected_intent": "EXERCISE",
+    "expected_target_chapter": 5,
+    "expected_chapter": 5
+  },
+  {
+    "question": "Explain sampling without replacement and give me a problem to practice",
+    "answerable": true,
+    "expected_intent": "BOTH",
+    "expected_target_chapter": 5,
+    "expected_chapter": 5
   }
 ]

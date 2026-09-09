@@ -19,13 +19,24 @@ def evaluate():
     vector_store = load_vector_store()
     rag_graph = build_rag_graph(vector_store)
 
+    # Sufficiency metric
     sufficiency_correct = 0
 
+    # Chapter retrieval metric
     chapter_hits = 0
     chapter_total = 0
 
+    # Subchapter retrieval metric
     subchapter_hits = 0
     subchapter_total = 0
+
+    # Intent classification metric
+    intent_correct = 0
+    intent_total = 0
+
+    # Target chapter selection metric
+    target_chapter_correct = 0
+    target_chapter_total = 0
 
     for case in test_cases:
         question = case["question"]
@@ -81,7 +92,10 @@ def evaluate():
 
         subchapter_pass = None
 
-        expected_subchapters = case.get("expected_subchapters", [])
+        expected_subchapters = case.get(
+            "expected_subchapters",
+            []
+        )
 
         if expected_answerable and expected_subchapters:
             subchapter_total += 1
@@ -95,48 +109,153 @@ def evaluate():
                 subchapter_hits += 1
 
 
+        # Intent accuracy
+
+        intent_pass = None
+
+        expected_intent = case.get("expected_intent")
+
+        if expected_intent is not None:
+            intent_total += 1
+
+            actual_intent = result.get(
+                "retrieval_intent"
+            )
+
+            intent_pass = (
+                actual_intent == expected_intent
+            )
+
+            if intent_pass:
+                intent_correct += 1
+
+
+        # Target chapter accuracy
+
+        target_chapter_pass = None
+
+        expected_target_chapter = case.get(
+            "expected_target_chapter"
+        )
+
+        if expected_target_chapter is not None:
+            target_chapter_total += 1
+
+            actual_target_chapter = result.get(
+                "target_chapter"
+            )
+
+            target_chapter_pass = (
+                actual_target_chapter
+                == expected_target_chapter
+            )
+
+            if target_chapter_pass:
+                target_chapter_correct += 1
+
+
         # Per-question output
 
-        print("\n" + "=" * 80)
+        case_failed = (
+            not sufficiency_pass
+            or chapter_pass is False
+            or subchapter_pass is False
+            or intent_pass is False
+            or target_chapter_pass is False
+        )
+        if case_failed:
+            print("\n" + "=" * 80)
 
-        print("\nQuestion:")
-        print(question)
+            print("\nQuestion:")
+            print(question)
 
-        print("\nExpected answerable:")
-        print(expected_answerable)
+            print("\nExpected answerable:")
+            print(expected_answerable)
 
-        print("\nActual sufficient:")
-        print(actual_sufficient)
+            print("\nActual sufficient:")
+            print(actual_sufficient)
 
-        print("\nSufficiency:")
-        print("PASS" if sufficiency_pass else "FAIL")
+            print("\nSufficiency:")
+            print(
+                "PASS"
+                if sufficiency_pass
+                else "FAIL"
+            )
 
-        print("\nRetries:")
-        print(result.get("retry_count", 0))
+            print("\nRetries:")
+            print(
+                result.get(
+                    "retry_count",
+                    0
+                )
+            )
 
-        if result.get("retry_count", 0) > 0:
-            print("\nRewritten query:")
-            print(result.get("retrieval_query"))
+            if result.get("retry_count", 0) > 0:
+                print("\nRewritten query:")
+                print(
+                    result.get(
+                        "retrieval_query"
+                    )
+                )
 
-        print("\nRetrieved chapters:")
-        print(retrieved_chapters)
+            print("\nRetrieved chapters:")
+            print(retrieved_chapters)
 
-        if chapter_pass is not None:
-            print("\nChapter hit@5:")
-            print("PASS" if chapter_pass else "FAIL")
+            if chapter_pass is not None:
+                print("\nChapter hit@5:")
+                print(
+                    "PASS"
+                    if chapter_pass
+                    else "FAIL"
+                )
 
-        print("\nRetrieved subchapters:")
-        print(retrieved_subchapters)
+            print("\nRetrieved subchapters:")
+            print(retrieved_subchapters)
 
-        if subchapter_pass is not None:
-            print("\nSubchapter hit@5:")
-            print("PASS" if subchapter_pass else "FAIL")
+            if subchapter_pass is not None:
+                print("\nSubchapter hit@5:")
+                print(
+                    "PASS"
+                    if subchapter_pass
+                    else "FAIL"
+                )
 
-        print("\nAnswer:")
-        print(result["answer"])
+            if intent_pass is not None:
+                print("\nRetrieval intent:")
+                print(
+                    result.get(
+                        "retrieval_intent"
+                    )
+                )
 
+                print("\nIntent accuracy:")
+                print(
+                    "PASS"
+                    if intent_pass
+                    else "FAIL"
+                )
 
+            if target_chapter_pass is not None:
+                print("\nTarget chapter:")
+                print(
+                    result.get(
+                        "target_chapter"
+                    )
+                )
+
+                print("\nTarget chapter accuracy:")
+                print(
+                    "PASS"
+                    if target_chapter_pass
+                    else "FAIL"
+                )
+
+            print("\nAnswer:")
+            print(result["answer"])
+
+    # --------------------------------------------------
     # Final summary
+    # --------------------------------------------------
 
     total_cases = len(test_cases)
 
@@ -158,7 +277,21 @@ def evaluate():
         else 0
     )
 
+    intent_accuracy = (
+        intent_correct / intent_total
+        if intent_total > 0
+        else 0
+    )
+
+    target_chapter_accuracy = (
+        target_chapter_correct
+        / target_chapter_total
+        if target_chapter_total > 0
+        else 0
+    )
+
     print("\n" + "=" * 80)
+
     print("\nEVALUATION SUMMARY")
 
     print(
@@ -177,6 +310,19 @@ def evaluate():
         f"Subchapter hit@5: "
         f"{subchapter_hits}/{subchapter_total} "
         f"({subchapter_accuracy:.1%})"
+    )
+
+    print(
+        f"Intent accuracy: "
+        f"{intent_correct}/{intent_total} "
+        f"({intent_accuracy:.1%})"
+    )
+
+    print(
+        f"Target chapter accuracy: "
+        f"{target_chapter_correct}/"
+        f"{target_chapter_total} "
+        f"({target_chapter_accuracy:.1%})"
     )
 
 

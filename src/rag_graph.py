@@ -204,6 +204,13 @@ def check_sufficiency_node(state: RAGState) -> dict:
         - A merely related topic is not sufficient.
         - If the user asks for a use case, purpose, application, or when something is used,
         a clear statement describing what it is used to model or accomplish is sufficient.
+        - If the user asks for a practice problem, exercise, quiz question, or something to solve,
+        return SUFFICIENT if the retrieved context contains an appropriate problem
+        that matches the requested topic.
+        A solution is not required unless the user explicitly asks for the solution.
+        - If the user asks for both an explanation and a practice problem,
+        return SUFFICIENT if the retrieved context contains enough theory to explain
+        the requested topic and also contains an appropriate problem on that topic.
         - If the user asks for an explanation, comparison, derivation, proof, or example,
         the context must contain enough information to perform that specific task.
         - A result being stated as true is not sufficient if the user asks for a proof

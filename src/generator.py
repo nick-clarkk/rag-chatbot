@@ -11,9 +11,9 @@ def generate_answer(
 
     # create a ChatOpenAI instance
     llm = ChatOpenAI(
-        model="gpt-4.1-mini",
+        model="gpt-5.6-terra",
         temperature=0.0, #math answers are more rigid -> lower temperature for more deterministic answers
-        max_tokens=650,
+        max_tokens=1000,
     )
 
     # prepare the context for the LLM

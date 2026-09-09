@@ -29,7 +29,7 @@ def classify_retrieval_intent_node(state: RAGState) -> dict:
     question = state["question"]
 
     llm = ChatOpenAI(
-        model="gpt-4.1-mini",
+        model="gpt-5.6-luna",
         temperature=0.0,
         max_tokens=10,
     )
@@ -94,7 +94,7 @@ def identify_target_chapter_node(state: RAGState, vector_store) -> dict:
     candidates = "\n".join(candidate_lines)
 
     llm = ChatOpenAI(
-        model="gpt-4.1-mini",
+        model="gpt-5.6-luna",
         temperature=0.0,
         max_tokens=20,
     )
@@ -182,7 +182,7 @@ def check_sufficiency_node(state: RAGState) -> dict:
     context = "\n\n---\n\n".join(doc.page_content for doc in retrieved_docs)
 
     llm = ChatOpenAI(
-        model="gpt-4.1-mini",
+        model="gpt-5.6-luna",
         temperature=0.0, #math answers are more rigid -> lower temperature for more deterministic answers
         max_tokens = 10,
     )
@@ -245,7 +245,7 @@ def rewrite_query_node(state: RAGState) -> dict:
     question = state["question"]
 
     llm = ChatOpenAI(
-        model = "gpt-4.1-mini",
+        model = "gpt-5.6-luna",
         temperature=0.0,
         max_tokens=100,
     )

@@ -6,6 +6,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 
 from src.tools.course_retrieval import search_course_materials
 from src.tools.web_search import web_search
+from src.tools.python_tool import run_python
 
 CURRENT_DATE = date.today().isoformat()
 
@@ -13,6 +14,7 @@ CURRENT_DATE = date.today().isoformat()
 tools = [
     search_course_materials,
     web_search,
+    run_python,
 ]
 
 llm = ChatOpenAI(
@@ -85,6 +87,9 @@ Exercise policy:
   than the full solution unless they ask for the solution.
 - If the student explicitly asks for the solution or walkthrough, then provide
   it.
+- For practice problems, use course exercises when explicitly requested.
+  Otherwise, you may generate a fresh problem. When useful, briefly offer the
+  alternative source for a follow-up problem.
 
 Web search policy:
 - Use web search when the question depends on current, recent, changing, or
@@ -109,6 +114,13 @@ Web source policy:
 - Prefer primary sources such as original research papers, official documentation,
   government sources, and publisher or conference pages over aggregators or
   secondary hosts when equivalent information is available.
+
+Python tool policy:
+- Use Python for nontrivial numerical calculations, simulations, or small
+visualizations when computation would improve reliability.
+- Do not use Python for simple conceptual explanations that can be answered directly.
+- For Python visualizations, let the Python tool manage plot saving and include
+  its returned plot paths in the final answer.
 
 Do not search the probability-course corpus for unrelated subjects.
 If a question can be answered from general knowledge and is not asking about

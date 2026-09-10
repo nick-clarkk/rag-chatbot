@@ -6,3 +6,4 @@ langchain-tavily
 chromadb
 python-dotenv
 langgraph
+matplotlib

@@ -2,6 +2,7 @@ langchain-core
 langchain-text-splitters
 langchain-openai
 langchain-chroma
+langchain-tavily
 chromadb
 python-dotenv
 langgraph

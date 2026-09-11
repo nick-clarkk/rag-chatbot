@@ -59,7 +59,26 @@ def main():
     "Find a practice problem about expectation from my course and use Python to verify the numerical answer after I solve it.",
     ]
 
-    questions = plotting_questions
+    # Test for over-tooling, under-tooling, restraint in web searches
+    boundary_questions = [ 
+    "Explain the difference between a normal distribution and a gamma distribution, then plot an example of each.",
+    "Use my textbook to explain the Gamma family from Chapter 18, then plot Gamma distributions with shape parameters 1, 2, and 5.",
+    "Find me a matching-problem exercise from Chapter 5, but don't solve it or use Python yet.",
+    "Use my course material on inclusion-exclusion to explain the method, then create a new practice problem that is not copied from the textbook.",
+    "Use my textbook's treatment of sampling without replacement to explain the idea, then use Python to compute a small numerical example.",
+    "Explain the chi-square distribution, then tell me about any important recent applications of it in machine learning.",
+    "What are some recent uses of Gamma distributions in machine learning or generative modeling, and plot a few Gamma densities to illustrate how the shape changes?",
+    "Give me a practice problem involving inclusion-exclusion.",
+    ]
+
+    questions = [
+    (
+        "Calculate the probability of getting exactly 4 aces when "
+        "20 cards are drawn from a standard deck without replacement."
+    ),
+    ]
+
+    # questions = boundary_questions
 
     DEBUG_TOOL_RESULTS = False
 
